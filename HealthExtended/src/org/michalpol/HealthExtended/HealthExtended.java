@@ -82,6 +82,7 @@ public class HealthExtended extends JavaPlugin
 		foods.put("RAW_FISH", 2);
 		foods.put("COOKED_FISH", 5);
 		foods.put("CAKE", 3);
+		foods.put("CAKE_BLOCK",3);
 		log.info("Created HealthExtended foods list");
 		log.info("Registering HealthExtended Events");
 		PluginManager pm=this.getServer().getPluginManager();
