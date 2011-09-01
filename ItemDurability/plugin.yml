@@ -1,0 +1,8 @@
+name: ItemDurability
+main: org.michalpol.ItemDurability.ItemDurability
+version: 0.0.8
+commands:
+   dur:
+      description: Checks item durability (In Hand).
+      usage: |
+            /dur [mode]

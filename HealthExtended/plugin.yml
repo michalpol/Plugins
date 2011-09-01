@@ -1,0 +1,8 @@
+name: HealthExtended
+main: org.michalpol.HealthExtended.HealthExtended
+version: 0.0.2
+commands:
+   hl:
+      description: Checks your Health Level and Experience.
+      usage: |
+            /hl

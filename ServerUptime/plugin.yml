@@ -1,0 +1,3 @@
+name: ServerUptime
+main: org.michalpol.ServerUptime.ServerUptime
+version: 0.0.1
