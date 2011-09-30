@@ -1,0 +1,8 @@
+name: HungerStat
+main: org.michalpol.HungerStat.HungerStat
+version: 0.0.1
+commands:
+   hs:
+      description: HungerStat.
+      usage: |
+            /hs [mode]
