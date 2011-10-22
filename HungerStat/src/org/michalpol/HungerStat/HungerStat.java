@@ -44,7 +44,10 @@ public class HungerStat extends JavaPlugin
 				int foodpercent=(int) Math.floor((totalfood/maxfood)*100);
 				totalfood=(int)(totalfood*((float)400.0));
 				totalfood=totalfood/(float)100.0;
-				player.sendMessage("Total FoodLevel: "+"§e"+Float.toString(totalfood)+"/20.00 ["+Integer.toString(foodpercent)+"%]§f");
+				player.sendMessage("Total FoodLevel: "+"§e"+Float.toString(totalfood)+"["+Integer.toString(foodpercent)+"%]§f");
+				player.sendMessage("Minecraft Level: "+Integer.toString(player.getLevel()));
+				player.sendMessage("Minecraft Experience: "+Integer.toString(player.getExperience()));
+				player.sendMessage("Minecraft Total Experience: "+Integer.toString(player.getTotalExperience()));
 				return true;
 		}
 		return false; 
