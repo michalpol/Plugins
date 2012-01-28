@@ -10,7 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 /**
  * Hunger Stat Plugin
  * @author michalpol
- * @version 0.0.1
+ * @version 0.0.2
  */
 
 public class HungerStat extends JavaPlugin
@@ -19,13 +19,13 @@ public class HungerStat extends JavaPlugin
 	public Logger log=Logger.getLogger("Minecraft");;
 	public void onEnable()
 	{
-		log.info("HungerStat v. 0.0.1 Enabled!");
+		log.info("HungerStat v. 0.0.2 Enabled!");
 	}
 	
 	
 	public void onDisable()
 	{
-		log.info("HungerStat v. 0.0.1 Disabled!");
+		log.info("HungerStat v. 0.0.2 Disabled!");
 	}
 	
 	/**
@@ -46,7 +46,7 @@ public class HungerStat extends JavaPlugin
 				totalfood=totalfood/(float)100.0;
 				player.sendMessage("Total FoodLevel: "+"§e"+Float.toString(totalfood)+"["+Integer.toString(foodpercent)+"%]§f");
 				player.sendMessage("Minecraft Level: "+Integer.toString(player.getLevel()));
-				player.sendMessage("Minecraft Experience: "+Integer.toString(player.getExperience()));
+				player.sendMessage("Minecraft Experience: "+ Integer.toString(((int)((player.getExp())*100))) + "%");
 				player.sendMessage("Minecraft Total Experience: "+Integer.toString(player.getTotalExperience()));
 				return true;
 		}
