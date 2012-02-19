@@ -386,6 +386,7 @@ public class Vitals extends JavaPlugin {
 				{
 					sender.sendMessage("You may not die this way, please use /kill instead.");
 				}
+				return true;
 			}
 			else if(args[0].equalsIgnoreCase("revive"))
 			{
@@ -416,6 +417,7 @@ public class Vitals extends JavaPlugin {
 				{
 					sender.sendMessage("You may not revive player that is not waiting for medic.");
 				}
+				return true;
 			}
 		}
 		return false; 
