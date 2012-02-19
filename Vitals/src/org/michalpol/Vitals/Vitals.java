@@ -329,7 +329,7 @@ public class Vitals extends JavaPlugin {
 				player.sendMessage("Colors (Armor): "+colors.get("aqua")+"diamond  "+colors.get("yellow")+"gold  "+colors.get("gray")+"iron  "+colors.get("dgray")+"chain  "+colors.get("gold")+"leather");
 				player.sendMessage("Colors (Bucket): "+colors.get("gold")+"lava  "+colors.get("blue")+"water  "+colors.get("white")+"milk  "+colors.get("gray")+"empty" );
 				player.sendMessage("-----------------------------------------------------" );
-				
+				return true;
 			}
 		}
 		return false; 
