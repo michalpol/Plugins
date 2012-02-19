@@ -17,15 +17,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * @author Michalpol
- * @Version 0.0.5
+ * @Version 0.0.6
  * This version includes NeedMedic Plugin into the codebase
  * NeedMedic plugin makes players "dead" for 60 seconds until
  * really dying them.
  * Thus, players may help each other by "reviving" friends so
  * they won't die and won't lose their items in the process.
- * 
- * NEEDMEDIC PART OF THIS PLUGIN IS HIGHLY EXPERIMENTAL
- * NO SUPPORT FOR THESE FEATURES WILL BE PROVIDED
  */
 public class Vitals extends JavaPlugin {
 	public final int CONST_TIME_TO_RESPAWN = 60;
@@ -388,7 +385,7 @@ public class Vitals extends JavaPlugin {
 				}
 				return true;
 			}
-			else if(args[0].equalsIgnoreCase("revive"))
+			else if(args[0].equalsIgnoreCase("revive") || args[0].equalsIgnoreCase("r"))
 			{
 				Player revived = this.getServer().getPlayerExact(args[1]);
 				Player reviver = this.getServer().getPlayerExact(sender.getName());
