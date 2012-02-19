@@ -15,7 +15,7 @@ import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+//import org.bukkit.event.player.PlayerTeleportEvent;
  
 public class VitalsListener implements Listener {
 	private Vitals pluginhead= null;
@@ -27,6 +27,7 @@ public class VitalsListener implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerDeath(EntityDeathEvent event) {
     	if(!(event.getEntity() instanceof Player)){return;}
+    	if(pluginhead.timelefts.containsKey(((Player)event.getEntity()).getName())){return;}
     	//Check if damage was caused by a plugin, should make sense
     	if(event.getEntity().getLastDamageCause().getCause() != DamageCause.CUSTOM)
     	{
@@ -51,9 +52,9 @@ public class VitalsListener implements Listener {
     	 *Check if player is registered in plugin as timed,
     	 *if player is not there that means that he most likely haven't died yet.
     	 */
-    	if(pluginhead.timelefts.containsKey(p))
+    	if(pluginhead.timelefts.containsKey(p.getName()))
     	{
-    		if(pluginhead.timelefts.get(p)>0)//if really is dead
+    		if(pluginhead.timelefts.get(p.getName())>0)//if really is dead
     		{
     			p.teleport(event.getFrom());//just TP back
     		}
@@ -68,9 +69,9 @@ public class VitalsListener implements Listener {
     	 *Check if player is registered in plugin as timed,
     	 *if player is not there that means that he most likely haven't died yet.
     	 */
-    	if(pluginhead.timelefts.containsKey(p))
+    	if(pluginhead.timelefts.containsKey(p.getName()))
     	{
-    		if(pluginhead.timelefts.get(p)>0)//if really is dead
+    		if(pluginhead.timelefts.get(p.getName())>0)//if really is dead
     		{
     			event.setCancelled(true);//just cancel the event execution if block is removed/placed by dead player
     		}
@@ -85,31 +86,31 @@ public class VitalsListener implements Listener {
     	 *Check if player is registered in plugin as timed,
     	 *if player is not there that means that he most likely haven't died yet.
     	 */
-    	if(pluginhead.timelefts.containsKey(p))
+    	if(pluginhead.timelefts.containsKey(p.getName()))
     	{
-    		if(pluginhead.timelefts.get(p)>0)//if really is dead
+    		if(pluginhead.timelefts.get(p.getName())>0)//if really is dead
     		{
     			event.setCancelled(true);//just cancel the event execution if block is removed/placed by dead player
     		}
     	}
     }
-    @EventHandler(priority = EventPriority.LOW)
-    public void onPlayerTeleport(PlayerTeleportEvent event)
-    {
-    	if(event.isCancelled()){return;}
-    	Player p = (Player) event.getPlayer();
-    	/*
-    	 *Check if player is registered in plugin as timed,
-    	 *if player is not there that means that he most likely haven't died yet.
-    	 */
-    	if(pluginhead.timelefts.containsKey(p))
-    	{
-    		if(pluginhead.timelefts.get(p)>0)//if really is dead
-    		{
-    			p.teleport(event.getFrom());//just TP back
-    		}
-    	}
-    }
+//    @EventHandler(priority = EventPriority.LOW)
+//    public void onPlayerTeleport(PlayerTeleportEvent event)
+//    {
+//    	if(event.isCancelled()){return;}
+//    	Player p = (Player) event.getPlayer();
+//    	/*
+//    	 *Check if player is registered in plugin as timed,
+//    	 *if player is not there that means that he most likely haven't died yet.
+//    	 */
+//    	if(pluginhead.timelefts.containsKey(p.getName()))
+//   	{
+//    		if(pluginhead.timelefts.get(p.getName())>0)//if really is dead
+//    		{
+//    			p.teleport(event.getFrom());//just TP back
+//    		}
+//    	}
+//    }
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerChat(PlayerChatEvent event)
     {
@@ -119,9 +120,9 @@ public class VitalsListener implements Listener {
     	 *Check if player is registered in plugin as timed,
     	 *if player is not there that means that he most likely haven't died yet.
     	 */
-    	if(pluginhead.timelefts.containsKey(p))
+    	if(pluginhead.timelefts.containsKey(p.getName()))
     	{
-    		if(pluginhead.timelefts.get(p)>0)//if really is dead
+    		if(pluginhead.timelefts.get(p.getName())>0)//if really is dead
     		{
     			String x = Integer.toString(p.getLocation().getBlockX());
     			String y = Integer.toString(p.getLocation().getBlockY());
@@ -143,9 +144,9 @@ public class VitalsListener implements Listener {
     	 *Check if player is registered in plugin as timed,
     	 *if player is not there that means that he most likely haven't died yet.
     	 */
-    	if(pluginhead.timelefts.containsKey(p))
+    	if(pluginhead.timelefts.containsKey(p.getName()))
     	{
-    		if(pluginhead.timelefts.get(p)>0)//if really is dead
+    		if(pluginhead.timelefts.get(p.getName())>0)//if really is dead
     		{
     			if (event.getMessage().startsWith("/vitals"))
     			{
@@ -172,9 +173,9 @@ public class VitalsListener implements Listener {
     	 *Check if player is registered in plugin as timed,
     	 *if player is not there that means that he most likely haven't died yet.
     	 */
-    	if(pluginhead.timelefts.containsKey(p))
+    	if(pluginhead.timelefts.containsKey(p.getName()))
     	{
-    		if(pluginhead.timelefts.get(p)>0)//if really is dead
+    		if(pluginhead.timelefts.get(p.getName())>0)//if really is dead
     		{
     			event.setCancelled(true);//cancel any damage
     		}
@@ -190,9 +191,9 @@ public class VitalsListener implements Listener {
     	 *Check if player is registered in plugin as timed,
     	 *if player is not there that means that he most likely haven't died yet.
     	 */
-    	if(pluginhead.timelefts.containsKey(p))
+    	if(pluginhead.timelefts.containsKey(p.getName()))
     	{
-    		if(pluginhead.timelefts.get(p)>0)//if really is dead
+    		if(pluginhead.timelefts.get(p.getName())>0)//if really is dead
     		{
     			event.setCancelled(true);//cancel any damage
     		}
@@ -207,9 +208,9 @@ public class VitalsListener implements Listener {
     	 *Check if player is registered in plugin as timed,
     	 *if player is not there that means that he most likely haven't died yet.
     	 */
-    	if(pluginhead.timelefts.containsKey(p))
+    	if(pluginhead.timelefts.containsKey(p.getName()))
     	{
-    		if(pluginhead.timelefts.get(p)>0)//if really is dead
+    		if(pluginhead.timelefts.get(p.getName())>0)//if really is dead
     		{
     			event.setCancelled(true);//cancel going into bed by dead player
     		}
@@ -223,9 +224,9 @@ public class VitalsListener implements Listener {
     	 *Check if player is registered in plugin as timed,
     	 *if player is not there that means that he most likely haven't died yet.
     	 */
-    	if(pluginhead.timelefts.containsKey(p))
+    	if(pluginhead.timelefts.containsKey(p.getName()))
     	{
-    		if(pluginhead.timelefts.get(p)>0)//if really is dead
+    		if(pluginhead.timelefts.get(p.getName())>0)//if really is dead
     		{
     			dieplayer(p, true);//Player dies automatically if he/she leaves while
     			//being wounded.
@@ -242,9 +243,9 @@ public class VitalsListener implements Listener {
     	 *Check if player is registered in plugin as timed,
     	 *if player is not there that means that he most likely haven't died yet.
     	 */
-    	if(pluginhead.timelefts.containsKey(p))
+    	if(pluginhead.timelefts.containsKey(p.getName()))
     	{
-    		if(pluginhead.timelefts.get(p)>0)//if really is dead
+    		if(pluginhead.timelefts.get(p.getName())>0)//if really is dead
     		{
     			event.setCancelled(true);//cancel any regain
     		}
@@ -260,12 +261,14 @@ public class VitalsListener implements Listener {
     	if(commanddeath)
     	{
     		p.sendMessage("Died by command.");
+    		pluginhead.timelefts.remove(p.getName());
     		pluginhead.getServer().broadcastMessage(p.getName()+" died by his command");
     	}
     	else
     	{
     		p.sendMessage("You died, because noone helped you in "+Integer.toString(pluginhead.CONST_TIME_TO_RESPAWN)+" seconds.");
     		pluginhead.getServer().broadcastMessage(p.getName()+" because noone helped him/her.");
+    		pluginhead.timelefts.remove(p.getName());
     	}
     }
 }

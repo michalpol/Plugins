@@ -17,7 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * @author Michalpol
- * @Version 0.0.4
+ * @Version 0.0.5
  * This version includes NeedMedic Plugin into the codebase
  * NeedMedic plugin makes players "dead" for 60 seconds until
  * really dying them.
@@ -63,12 +63,12 @@ public class Vitals extends JavaPlugin {
 					  if(i>0)
 					  {
 					  i--;
+					  p.put(a,i);
 					  }
 					  else
 					  {
 						  VL.dieplayer(Bukkit.getServer().getPlayerExact(a),false);
 					  }
-					  p.put(a,i);
 				  }
 				  timelefts=p;}
 			  },
@@ -391,9 +391,9 @@ public class Vitals extends JavaPlugin {
 			{
 				Player revived = this.getServer().getPlayerExact(args[1]);
 				Player reviver = this.getServer().getPlayerExact(sender.getName());
-				if(timelefts.containsKey(revived))
+				if(timelefts.containsKey(revived.getName()))
 				{
-					if(timelefts.get(revived)>0)
+					if(timelefts.get(revived.getName())>0)
 					{
 						Location reviverLoc = reviver.getLocation();
 						Location revivedLoc = revived.getLocation();
