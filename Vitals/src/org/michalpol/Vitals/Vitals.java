@@ -17,7 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * @author Michalpol
- * @Version 0.0.3
+ * @Version 0.0.4
  * This version includes NeedMedic Plugin into the codebase
  * NeedMedic plugin makes players "dead" for 60 seconds until
  * really dying them.
@@ -520,10 +520,12 @@ public class Vitals extends JavaPlugin {
 	  {
 		  if(!timelefts.containsKey(reviver.getName()))
 		  {
-		  revived.setHealth(1);
+		  revived.setHealth(Math.min(Math.max(1, reviver.getLevel()),20));
 		  timelefts.remove(revived.getName());
 		  revived.sendMessage("You were just revived by "+reviver.getName()+".");
-		  reviver.sendMessage("You just revived "+revived.getName()+".");
+		  reviver.sendMessage("You just revived "+revived.getName()+"");
+		  reviver.setLevel(reviver.getLevel()+1);
+		  reviver.sendMessage("And got rewarded one minecraft level.");
 		  }
 		  else
 		  {
