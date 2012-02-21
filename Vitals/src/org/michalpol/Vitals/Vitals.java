@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import com.nidefawl.Stats.Stats;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -17,15 +19,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * @author Michalpol
- * @Version 0.0.6
- * This version includes NeedMedic Plugin into the codebase
+ * @Version 0.0.10
+ * This version includes NeedMedic And also Stats integration Plugin into the codebase
  * NeedMedic plugin makes players "dead" for 60 seconds until
  * really dying them.
  * Thus, players may help each other by "reviving" friends so
  * they won't die and won't lose their items in the process.
  */
 public class Vitals extends JavaPlugin {
-	public final int CONST_TIME_TO_RESPAWN = 60;
+	public int CONST_TIME_TO_RESPAWN = 60;
+	public Stats stats = null;
 	public Logger log = Logger.getLogger("Minecraft");//logger
 	private Map<String,String> colors= new HashMap<String,String>();
 	public HashMap<String,Integer> timelefts = new HashMap<String,Integer> ();
@@ -48,7 +51,14 @@ public class Vitals extends JavaPlugin {
 		colors.put("pink", "§d");
 		colors.put("yellow", "§e");
 		colors.put("white", "§f");
+		log.info("[Vitals]Looking for Stats plugin...");
+		
+		stats =(Stats) this.getServer().getPluginManager().getPlugin("Stats");
+		
+		log.info("[Vitals]Stats plugin found...");
+		log.info("[Vitals]Setting up Vitals Listener...");
 		VL = new VitalsListener(this);
+		log.info("[Vitals]Setting up Vitals Scheduled Tasks...");
 		Bukkit.getServer().getScheduler().scheduleAsyncRepeatingTask(this,
 				  new Runnable(){ 
 			public void run(){
@@ -60,6 +70,7 @@ public class Vitals extends JavaPlugin {
 					  if(i>0)
 					  {
 					  i--;
+					  stats.updateStat(a, "vitals", "timedead", 1, true);
 					  p.put(a,i);
 					  }
 					  else
@@ -525,6 +536,8 @@ public class Vitals extends JavaPlugin {
 		  reviver.sendMessage("You just revived "+revived.getName()+"");
 		  reviver.setLevel(reviver.getLevel()+1);
 		  reviver.sendMessage("And got rewarded one minecraft level.");
+		  stats.updateStat(revived.getName(), "vitals", "gotrevived", 1, true);
+		  stats.updateStat(reviver.getName(), "vitals", "revived", 1, true);
 		  }
 		  else
 		  {

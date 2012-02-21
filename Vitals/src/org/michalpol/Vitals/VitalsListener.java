@@ -8,14 +8,12 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-//import org.bukkit.event.player.PlayerTeleportEvent;
  
 public class VitalsListener implements Listener {
 	private Vitals pluginhead= null;
@@ -24,25 +22,13 @@ public class VitalsListener implements Listener {
         pluginhead=plugin;
     }
  
-    @EventHandler(priority = EventPriority.LOW)
-    public void onPlayerDeath(EntityDeathEvent event) {
-    	if(!(event.getEntity() instanceof Player)){return;}
-    	if(pluginhead.timelefts.containsKey(((Player)event.getEntity()).getName())){return;}
-    	//Check if damage was caused by a plugin, should make sense
-    	if(event.getEntity().getLastDamageCause().getCause() != DamageCause.CUSTOM)
-    	{
-        Player p = (Player)event.getEntity();
-        p.setHealth(1);//Prevent for looping deaths
-        pluginhead.setDead(p);
-        p.sendMessage("You are now wounded and waiting for a medic.");
-        p.sendMessage("Use /vitals die to die immediatelly.");
-        String LocStr = "";
-        LocStr+="X= "+Integer.toString(p.getLocation().getBlockX())+"; ";
-        LocStr+="Y= "+Integer.toString(p.getLocation().getBlockY())+"; ";
-        LocStr+="Z= "+Integer.toString(p.getLocation().getBlockZ())+"";
-        pluginhead.getServer().broadcastMessage(p.getName()+" ("+LocStr+") is now wounded and waiting for medic.");
-    	}
-    }
+//    @EventHandler(priority = EventPriority.LOW)
+//    public void onPlayerDeath(EntityDeathEvent event) {
+//    	if(!(event.getEntity() instanceof Player)){return;}
+//    	if(pluginhead.timelefts.containsKey(((Player)event.getEntity()).getName())){return;}
+//    	//Check if damage was caused by a plugin, should make sense
+//    	
+//    }
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerMove(PlayerMoveEvent event)
     {
@@ -180,6 +166,23 @@ public class VitalsListener implements Listener {
     			event.setCancelled(true);//cancel any damage
     		}
     	}
+    	else if ((p.getHealth()-event.getDamage())<=0)
+    	{
+    		if(event.getEntity().getLastDamageCause().getCause() != DamageCause.CUSTOM)
+        	{
+    		event.setCancelled(true);
+            p.setHealth(1);//Prevent for looping deaths
+            pluginhead.setDead(p);
+            p.sendMessage("You are now wounded and waiting for a medic.");
+            p.sendMessage("Use /vitals die to die immediatelly.");
+            String LocStr = "";
+            LocStr+="X= "+Integer.toString(p.getLocation().getBlockX())+"; ";
+            LocStr+="Y= "+Integer.toString(p.getLocation().getBlockY())+"; ";
+            LocStr+="Z= "+Integer.toString(p.getLocation().getBlockZ())+"";
+            pluginhead.getServer().broadcastMessage(p.getName()+" ("+LocStr+") is now wounded and waiting for medic.");
+        	}
+    		
+    	}
     }
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerDamageByEntity(EntityDamageByEntityEvent event)
@@ -255,7 +258,7 @@ public class VitalsListener implements Listener {
     //PERFORMING METHODS (HELPERS)
     public void dieplayer(Player p,boolean commanddeath)
     {
-    	//TODO not sure if this works, should kill player without looping itself
+    	//should kill player without looping itself
     	p.setHealth(0);
     	p.setLastDamageCause(new EntityDamageEvent(p, DamageCause.CUSTOM, 20));
     	if(commanddeath)
@@ -267,7 +270,7 @@ public class VitalsListener implements Listener {
     	else
     	{
     		p.sendMessage("You died, because noone helped you in "+Integer.toString(pluginhead.CONST_TIME_TO_RESPAWN)+" seconds.");
-    		pluginhead.getServer().broadcastMessage(p.getName()+" because noone helped him/her.");
+    		pluginhead.getServer().broadcastMessage(p.getName()+"died, because noone helped him/her.");
     		pluginhead.timelefts.remove(p.getName());
     	}
     }
