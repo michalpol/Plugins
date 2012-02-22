@@ -10,16 +10,19 @@ import com.nidefawl.Stats.Stats;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+//import org.bukkit.entity.Entity;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageEvent;
+//import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * @author Michalpol
- * @Version 0.0.10
+ * @Version 0.0.17
  * This version includes NeedMedic And also Stats integration Plugin into the codebase
  * NeedMedic plugin makes players "dead" for 60 seconds until
  * really dying them.
@@ -32,6 +35,7 @@ public class Vitals extends JavaPlugin {
 	public Logger log = Logger.getLogger("Minecraft");//logger
 	private Map<String,String> colors= new HashMap<String,String>();
 	public HashMap<String,Integer> timelefts = new HashMap<String,Integer> ();
+	public HashMap<String,EntityDamageEvent> DeathCauses = new HashMap<String,EntityDamageEvent> ();
 	public VitalsListener VL = null;
 	public void onEnable(){ 
 		log.info("[Vitals]Enabling Vitals...");

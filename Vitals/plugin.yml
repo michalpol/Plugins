@@ -1,6 +1,6 @@
 name: Vitals
 main: org.michalpol.Vitals.Vitals
-version: 0.0.10
+version: 0.0.17
 depend: [Stats]
 commands:
    vitals:

@@ -7,7 +7,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+//import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerChatEvent;
@@ -168,8 +168,10 @@ public class VitalsListener implements Listener {
     	}
     	else if ((p.getHealth()-event.getDamage())<=0)
     	{
-    		if(event.getEntity().getLastDamageCause().getCause() != DamageCause.CUSTOM)
+    		if(!(pluginhead.DeathCauses.containsKey(p.getName())))
         	{
+    			EntityDamageEvent a = event.getEntity().getLastDamageCause();
+    			pluginhead.DeathCauses.put(p.getName(),a);
     		event.setCancelled(true);
             p.setHealth(1);//Prevent for looping deaths
             pluginhead.setDead(p);
@@ -260,7 +262,16 @@ public class VitalsListener implements Listener {
     {
     	//should kill player without looping itself
     	p.setHealth(0);
-    	p.setLastDamageCause(new EntityDamageEvent(p, DamageCause.CUSTOM, 20));
+    	if(pluginhead.DeathCauses.get(p.getName())instanceof EntityDamageByEntityEvent)
+    	{
+    		EntityDamageByEntityEvent event =(EntityDamageByEntityEvent) pluginhead.DeathCauses.get(p.getName());
+    		p.setLastDamageCause(new EntityDamageByEntityEvent(((EntityDamageByEntityEvent) event).getDamager(), p, event.getCause(), event.getDamage()));
+    	}
+    	else{
+    		EntityDamageEvent event =(EntityDamageEvent) pluginhead.DeathCauses.get(p.getName());
+    		p.setLastDamageCause(new EntityDamageEvent(p, event.getCause(), event.getDamage()));
+    	}
+    	pluginhead.DeathCauses.remove(p.getName());
     	if(commanddeath)
     	{
     		p.sendMessage("Died by command.");
