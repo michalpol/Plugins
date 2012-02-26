@@ -1,4 +1,5 @@
 package org.michalpol.Vitals;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
@@ -14,6 +15,7 @@ import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.PlayerInventory;
  
 public class VitalsListener implements Listener {
 	private Vitals pluginhead= null;
@@ -155,6 +157,47 @@ public class VitalsListener implements Listener {
     	if(event.isCancelled()){return;}
     	if(!(event.getEntity() instanceof Player)){return;}
     	Player p = (Player) event.getEntity();
+    	int reduceddamage = event.getDamage();
+    	int AP = 0;
+    	int APhelm = 0;
+    	int APchest = 0;
+    	int APlegs = 0;
+    	int APboot = 0;
+    	PlayerInventory pinv=p.getInventory();
+    	
+    	if(pinv.getHelmet().getType() == Material.LEATHER_HELMET){APhelm=1;	}
+    	else if(pinv.getHelmet().getType() == Material.GOLD_HELMET){APhelm=2;	}
+    	else if(pinv.getHelmet().getType() == Material.CHAINMAIL_HELMET){APhelm=2;  }
+    	else if(pinv.getHelmet().getType() == Material.IRON_HELMET){APhelm=2;  }
+    	else if(pinv.getHelmet().getType() == Material.DIAMOND_HELMET){ APhelm=3; }
+    	else {APhelm=0;}
+    	
+    	if(pinv.getChestplate().getType() == Material.LEATHER_CHESTPLATE){APchest=3;	}
+    	else if(pinv.getChestplate().getType() == Material.GOLD_CHESTPLATE){APchest=5;	}
+    	else if(pinv.getChestplate().getType() == Material.CHAINMAIL_CHESTPLATE){APchest=5;  }
+    	else if(pinv.getChestplate().getType() == Material.IRON_CHESTPLATE){ APchest=6; }
+    	else if(pinv.getChestplate().getType() == Material.DIAMOND_CHESTPLATE){APchest=8;  }
+    	else {APchest=0;}    	
+    	
+    	if(pinv.getLeggings().getType() == Material.LEATHER_LEGGINGS){APlegs=2;	}
+    	else if(pinv.getLeggings().getType() == Material.GOLD_LEGGINGS){APlegs=3;	}
+    	else if(pinv.getLeggings().getType() == Material.CHAINMAIL_LEGGINGS){APlegs=4;  }
+    	else if(pinv.getLeggings().getType() == Material.IRON_LEGGINGS){APlegs=5;  }
+    	else if(pinv.getLeggings().getType() == Material.DIAMOND_LEGGINGS){APlegs=6;  }
+    	else {APlegs=0;}    	
+    	
+    	if(pinv.getBoots().getType() == Material.LEATHER_BOOTS){APboot=1;	}
+    	else if(pinv.getBoots().getType() == Material.GOLD_BOOTS){APboot=1;	}
+    	else if(pinv.getBoots().getType() == Material.CHAINMAIL_BOOTS){APboot=1;  }
+    	else if(pinv.getBoots().getType() == Material.IRON_BOOTS){APboot=2;  }
+    	else if(pinv.getBoots().getType() == Material.DIAMOND_BOOTS){ APboot=3; }
+    	else {APboot=0;}    	
+    	
+    	AP=APhelm+APchest+APlegs+APboot;
+    	AP=AP*4;
+    	
+    	reduceddamage=(reduceddamage*(100-AP))/100;
+    	
     	/*
     	 *Check if player is registered in plugin as timed,
     	 *if player is not there that means that he most likely haven't died yet.
@@ -166,7 +209,7 @@ public class VitalsListener implements Listener {
     			event.setCancelled(true);//cancel any damage
     		}
     	}
-    	else if ((p.getHealth()-event.getDamage())<=0)
+    	else if ((p.getHealth()-(reduceddamage))<=0)
     	{
     		if(!(pluginhead.DeathCauses.containsKey(p.getName())))
         	{

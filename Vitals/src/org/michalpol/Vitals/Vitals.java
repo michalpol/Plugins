@@ -22,7 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * @author Michalpol
- * @Version 0.0.17
+ * @Version 0.0.18
  * This version includes NeedMedic And also Stats integration Plugin into the codebase
  * NeedMedic plugin makes players "dead" for 60 seconds until
  * really dying them.
