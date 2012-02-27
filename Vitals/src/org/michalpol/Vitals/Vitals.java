@@ -4,25 +4,18 @@ import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
-
-import com.nidefawl.Stats.Stats;
-
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
-//import org.bukkit.entity.Entity;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageEvent;
-//import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * @author Michalpol
- * @Version 0.0.18
+ * @Version 0.0.19
  * This version includes NeedMedic And also Stats integration Plugin into the codebase
  * NeedMedic plugin makes players "dead" for 60 seconds until
  * really dying them.
@@ -30,13 +23,8 @@ import org.bukkit.plugin.java.JavaPlugin;
  * they won't die and won't lose their items in the process.
  */
 public class Vitals extends JavaPlugin {
-	public int CONST_TIME_TO_RESPAWN = 60;
-	public Stats stats = null;
 	public Logger log = Logger.getLogger("Minecraft");//logger
-	private Map<String,String> colors= new HashMap<String,String>();
-	public HashMap<String,Integer> timelefts = new HashMap<String,Integer> ();
-	public HashMap<String,EntityDamageEvent> DeathCauses = new HashMap<String,EntityDamageEvent> ();
-	public VitalsListener VL = null;
+			private Map<String,String> colors= new HashMap<String,String>();
 	public void onEnable(){ 
 		log.info("[Vitals]Enabling Vitals...");
 		colors.put("black", "§0");
@@ -55,37 +43,6 @@ public class Vitals extends JavaPlugin {
 		colors.put("pink", "§d");
 		colors.put("yellow", "§e");
 		colors.put("white", "§f");
-		log.info("[Vitals]Looking for Stats plugin...");
-		
-		stats =(Stats) this.getServer().getPluginManager().getPlugin("Stats");
-		
-		log.info("[Vitals]Stats plugin found...");
-		log.info("[Vitals]Setting up Vitals Listener...");
-		VL = new VitalsListener(this);
-		log.info("[Vitals]Setting up Vitals Scheduled Tasks...");
-		Bukkit.getServer().getScheduler().scheduleAsyncRepeatingTask(this,
-				  new Runnable(){ 
-			public void run(){
-			      HashMap<String,Integer> players = timelefts;
-				  HashMap<String,Integer> p = new HashMap<String,Integer>();
-				  for (String a : players.keySet())
-				  {
-					  int i = players.get(a);
-					  if(i>0)
-					  {
-					  i--;
-					  stats.updateStat(a, "vitals", "timedead", 1, true);
-					  p.put(a,i);
-					  }
-					  else
-					  {
-						  VL.dieplayer(Bukkit.getServer().getPlayerExact(a),false);
-					  }
-				  }
-				  timelefts=p;}
-			  },
-				20,
-				20);
 		log.info("[Vitals]Vitals Enabled!");
 	}
 	 
@@ -380,57 +337,6 @@ public class Vitals extends JavaPlugin {
 				player.sendMessage("-----------------------------------------------------" );
 				return true;
 			}
-			else if(args[0].equalsIgnoreCase("die"))
-			{
-				Player dieme = this.getServer().getPlayerExact(sender.getName());
-				if(timelefts.containsKey(dieme.getName()))
-				{
-					if(timelefts.get(dieme.getName())>0)
-					{
-						VL.dieplayer(dieme,true);
-					}
-					else
-					{
-						sender.sendMessage("You may not die this way, please use /kill instead.");
-					}
-				}
-				else
-				{
-					sender.sendMessage("You may not die this way, please use /kill instead.");
-				}
-				return true;
-			}
-			else if(args[0].equalsIgnoreCase("revive") || args[0].equalsIgnoreCase("r"))
-			{
-				Player revived = this.getServer().getPlayerExact(args[1]);
-				Player reviver = this.getServer().getPlayerExact(sender.getName());
-				if(timelefts.containsKey(revived.getName()))
-				{
-					if(timelefts.get(revived.getName())>0)
-					{
-						Location reviverLoc = reviver.getLocation();
-						Location revivedLoc = revived.getLocation();
-						int distance = (int)Math.abs(Math.round(reviverLoc.toVector().distance(revivedLoc.toVector())));
-						if(distance<=5)
-						{
-							revivePlayer(revived,reviver);
-						}
-						else
-						{
-							sender.sendMessage("You may not revive player that is too far away.");
-						}
-					}
-					else
-					{
-						sender.sendMessage("You may not revive player that is not waiting for medic.");
-					}
-				}
-				else
-				{
-					sender.sendMessage("You may not revive player that is not waiting for medic.");
-				}
-				return true;
-			}
 		}
 		return false; 
 	}
@@ -485,18 +391,14 @@ public class Vitals extends JavaPlugin {
 	  {
 		  //Name   LVL   HP   HG   XP   FS
 		  String Namestr="", HPstr = "",LVLstr="", HGstr = "", XPstr = "";
-		  
-		  int timeleft = 0;
-		  if(timelefts.containsKey(player.getName())){timeleft=timelefts.get(player.getName());}
-		  String TimeStr = colors.get("dred")+"DT: "+Integer.toString(timeleft);
-		  if(me.getName().equalsIgnoreCase(player.getName())){Namestr=colors.get("gold")+player.getName();}else if (player.getHealth()==0){Namestr=colors.get("dred")+player.getName()+"("+Integer.toString(timeleft)+")";}else{Namestr=player.getName();}
+		  if(me.getName().equalsIgnoreCase(player.getName())){Namestr=colors.get("gold")+player.getName();}else if (player.getHealth()==0){Namestr=colors.get("dred")+player.getName();}else{Namestr=player.getName();}
 		  if(player.getHealth()<=5){HPstr=colors.get("red")+"HP: "+Integer.toString((player.getHealth()*5))+"%";}else if(player.getHealth()<=10){HPstr=colors.get("yellow")+"HP: "+Integer.toString((player.getHealth()*5))+"%";}else{HPstr=colors.get("green")+"HP: "+Integer.toString((player.getHealth()*5))+"%";}
 		  HGstr=colors.get("gold")+"HG: "+Integer.toString((player.getFoodLevel()*5))+"%";
 		  int HHTM=player.getLevel()-me.getLevel();
 		  if(Math.abs(HHTM)<=3){LVLstr=colors.get("yellow")+"LV: "+Integer.toString(player.getLevel());}else if(HHTM<-3){LVLstr=colors.get("green")+"LV: "+Integer.toString(player.getLevel());} else {LVLstr=colors.get("red")+"LV: "+Integer.toString(player.getLevel());}
 		  XPstr=colors.get("yellow")+"XP: "+Integer.toString(player.getExperience())+"%";
 		  String FSstr=colors.get("green")+"FS: "+UnFormattedItemsSlotsString(player.getInventory());
-		  return Namestr+"   "+LVLstr+"   "+HPstr+"   "+HGstr+"   "+XPstr+"   "+FSstr+"   "+TimeStr;
+		  return Namestr+"   "+LVLstr+"   "+HPstr+"   "+HGstr+"   "+XPstr+"   "+FSstr;
 	  }
 	  private String FormattedItemsSlotsString(PlayerInventory inv)
 	  {
@@ -517,35 +419,5 @@ public class Vitals extends JavaPlugin {
 			        count++;
 			}
 			return Integer.toString(count);
-	  }
-	  public void setDead(Player p)
-	  {
-		  if(timelefts.containsKey(p.getName()))
-		  {
-			  timelefts.remove(p.getName());
-			  timelefts.put(p.getName(), CONST_TIME_TO_RESPAWN);
-		  }
-		  else
-		  {
-			  timelefts.put(p.getName(), CONST_TIME_TO_RESPAWN);
-		  }
-	  }
-	  private void revivePlayer(Player revived, Player reviver)
-	  {
-		  if(!timelefts.containsKey(reviver.getName()))
-		  {
-		  revived.setHealth(Math.min(Math.max(1, reviver.getLevel()),20));
-		  timelefts.remove(revived.getName());
-		  revived.sendMessage("You were just revived by "+reviver.getName()+".");
-		  reviver.sendMessage("You just revived "+revived.getName()+"");
-		  reviver.setLevel(reviver.getLevel()+1);
-		  reviver.sendMessage("And got rewarded one minecraft level.");
-		  stats.updateStat(revived.getName(), "vitals", "gotrevived", 1, true);
-		  stats.updateStat(reviver.getName(), "vitals", "revived", 1, true);
-		  }
-		  else
-		  {
-			  reviver.sendMessage("You may not revive anyone while being wounded and waiting for medic.");
-		  }
 	  }
 }
