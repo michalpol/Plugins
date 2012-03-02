@@ -15,7 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * @author Michalpol
- * @Version 0.0.19
+ * @Version 0.0.28
  * This version includes NeedMedic And also Stats integration Plugin into the codebase
  * NeedMedic plugin makes players "dead" for 60 seconds until
  * really dying them.
@@ -25,6 +25,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Vitals extends JavaPlugin {
 	public Logger log = Logger.getLogger("Minecraft");//logger
 			private Map<String,String> colors= new HashMap<String,String>();
+			private static Metrics metrics;
 	public void onEnable(){ 
 		log.info("[Vitals]Enabling Vitals...");
 		colors.put("black", "§0");
@@ -43,6 +44,40 @@ public class Vitals extends JavaPlugin {
 		colors.put("pink", "§d");
 		colors.put("yellow", "§e");
 		colors.put("white", "§f");
+		log.info("[Vitals]Enabling PluginMetrics...");
+		try {
+		    metrics = new Metrics();
+
+		    // Plot the total amount of protections
+		    metrics.addCustomData(this, new Metrics.Plotter("Total Health") {
+
+		        @Override
+		        public int getValue() {
+		            return this.getTotalHP();
+		        }
+		  	  private int getTotalHP()
+			  {
+				int totHP=0;
+				Player[] onlineps=getServer().getOnlinePlayers();
+//				OfflinePlayer[] offlineps=getServer().getOfflinePlayers();
+				for(Player pl:onlineps)
+				{
+					totHP+=pl.getHealth();
+				}
+//				for(OfflinePlayer pl:offlineps)
+//				{
+//					Player plpl=pl.getPlayer();
+//					totHP+=plpl.getHealth();
+//				}
+				return totHP;
+			  }
+
+		    });
+
+		    metrics.beginMeasuringPlugin(this);
+		} catch (Exception e) {
+		    e.printStackTrace();
+		}
 		log.info("[Vitals]Vitals Enabled!");
 	}
 	 
@@ -420,4 +455,5 @@ public class Vitals extends JavaPlugin {
 			}
 			return Integer.toString(count);
 	  }
+
 }
