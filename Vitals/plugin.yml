@@ -1,6 +1,7 @@
 name: Vitals
+author: michalpol
 main: org.michalpol.Vitals.Vitals
-version: 0.0.28
+version: 0.1.0
 commands:
    vitals:
       description: Checks [player] Vitals in [mode] (all-all players, p - picked player).

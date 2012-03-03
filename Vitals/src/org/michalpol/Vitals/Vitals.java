@@ -1,31 +1,51 @@
 package org.michalpol.Vitals;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.lang.reflect.Array;
+import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.alta189.sqlLibrary.MySQL.mysqlCore;
+
 /**
  * @author Michalpol
- * @Version 0.0.28
- * This version includes NeedMedic And also Stats integration Plugin into the codebase
- * NeedMedic plugin makes players "dead" for 60 seconds until
- * really dying them.
- * Thus, players may help each other by "reviving" friends so
- * they won't die and won't lose their items in the process.
+ * @Version 0.1.0
  */
-public class Vitals extends JavaPlugin {
+public class Vitals extends JavaPlugin implements Listener{
+	public static int CONST_AUTOSAVE_SECONDS = 300;
 	public Logger log = Logger.getLogger("Minecraft");//logger
 			private Map<String,String> colors= new HashMap<String,String>();
 			private static Metrics metrics;
+			
+			
+			static String mainDirectory = "plugins/Vitals"; 
+			static File Config = new File(mainDirectory + File.separator + "config.properties");
+			static Properties prop = new Properties();
+			
+			public String HOST;
+			public String USER;
+			public String PWD;
+			public static String DB;
+			
+			
 	public void onEnable(){ 
 		log.info("[Vitals]Enabling Vitals...");
 		colors.put("black", "§0");
@@ -44,43 +64,169 @@ public class Vitals extends JavaPlugin {
 		colors.put("pink", "§d");
 		colors.put("yellow", "§e");
 		colors.put("white", "§f");
+		log.info("[Vitals]Looking for config file...");
+		new File(mainDirectory).mkdir();
+		if(!Config.exists()){ 
+			log.log(Level.WARNING,"[Vitals]Config file not found!");
+			log.log(Level.WARNING,"[Vitals]Plugin will disable itself!");
+			this.setEnabled(false);
+			}
+		else { 
+			loadProcedure();
+		}
+		log.info("[Vitals]Configuration loaded...");
+		log.info("[Vitals]Initializing MySQL...");
+		mysqlCore mysql = new mysqlCore(log,"[Vitals]",HOST,DB,USER,PWD);
+		mysql.initialize();
+		try{
+			if(!mysql.checkConnection()){mysql.writeError("MySQL connection problem occured!", true);}
+			if(mysql.checkTable("vitals")){mysql.writeInfo("Table present...");}
+			else{mysql.writeError("Table absent, creating it...", false);
+			if(mysql.createTable("CREATE TABLE `"+DB+"`.`vitals` ( " +
+					"`id` INT( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY ," +
+					"`playername` VARCHAR( 255 ) NOT NULL , " +
+					"`HP` INT( 2 ) NOT NULL , " +
+					"`Level` INT( 4 ) NOT NULL , " +
+					"`TotalXP` INT( 11 ) NOT NULL)"))
+			{
+			mysql.writeInfo("Table created.");
+			}
+			else
+			{
+				mysql.writeInfo("Could not make table.");
+			}
+			}
+			mysql.close();
+		}catch(Exception e){e.printStackTrace();}
+		log.info("[Vitals]MySQL initialized!");
 		log.info("[Vitals]Enabling PluginMetrics...");
 		try {
 		    metrics = new Metrics();
 
 		    // Plot the total amount of protections
 		    metrics.addCustomData(this, new Metrics.Plotter("Total Health") {
-
 		        @Override
 		        public int getValue() {
-		            return this.getTotalHP();
+		        	int val = 0;
+		    		mysqlCore mysql = new mysqlCore(log,"[Vitals]",HOST,DB,USER,PWD);
+		    		mysql.initialize();
+		    		try {
+		    				ResultSet r=mysql.sqlQuery("SELECT SUM(HP) FROM `vitals`");
+		    				if(r==null || !r.next()){return 0;}
+		    				r.absolute(1);
+		    				val=r.getInt(1);
+		    		} catch (Exception e) {
+		    			e.printStackTrace();
+		    			return 0;
+		    		}
+		    		mysql.close();
+		    		
+		    		return val;
 		        }
-		  	  private int getTotalHP()
-			  {
-				int totHP=0;
-				Player[] onlineps=getServer().getOnlinePlayers();
-//				OfflinePlayer[] offlineps=getServer().getOfflinePlayers();
-				for(Player pl:onlineps)
-				{
-					totHP+=pl.getHealth();
-				}
-//				for(OfflinePlayer pl:offlineps)
-//				{
-//					Player plpl=pl.getPlayer();
-//					totHP+=plpl.getHealth();
-//				}
-				return totHP;
-			  }
 
 		    });
+		    metrics.addCustomData(this, new Metrics.Plotter("Total Level") {
+		        @Override
+		        public int getValue() {
+		        	int val = 0;
+		    		mysqlCore mysql = new mysqlCore(log,"[Vitals]",HOST,DB,USER,PWD);
+		    		mysql.initialize();
+		    		try {
+		    				ResultSet r=mysql.sqlQuery("SELECT SUM(Level) FROM `vitals`");
+		    				if(r==null || !r.next()){return 0;}
+		    				r.absolute(1);
+		    				val=r.getInt(1);
+		    		} catch (Exception e) {
+		    			e.printStackTrace();
+		    			return 0;
+		    		}
+		    		mysql.close();
+		    		
+		    		return val;
+		        }
 
+		    });
+		    metrics.addCustomData(this, new Metrics.Plotter("Total Expereince") {
+		        @Override
+		        public int getValue() {
+		        	int val = 0;
+		    		mysqlCore mysql = new mysqlCore(log,"[Vitals]",HOST,DB,USER,PWD);
+		    		mysql.initialize();
+		    		try {
+		    				ResultSet r=mysql.sqlQuery("SELECT SUM(TotalXP) FROM `vitals`");
+		    				if(r==null || !r.next()){return 0;}
+		    				r.absolute(1);
+		    				val=r.getInt(1);
+		    		} catch (Exception e) {
+		    			e.printStackTrace();
+		    			return 0;
+		    		}
+		    		mysql.close();
+		    		
+		    		return val;
+		        }
+
+		    });
 		    metrics.beginMeasuringPlugin(this);
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}
+		log.info("[Vitals]Registering events...");
+		this.getServer().getPluginManager().registerEvents(this, this);
+		log.info("[Vitals]Registering repeating tasks...");
+		this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable()
+				{
+					public void run()
+					{
+						Player[] playersonline = Bukkit.getServer().getOnlinePlayers();
+						for(Player player : playersonline)
+						{
+							SavePlayer(player.getName(),player.getHealth(),player.getLevel(),player.getTotalExperience());
+						}
+					}
+				}, 0, 20*CONST_AUTOSAVE_SECONDS);
 		log.info("[Vitals]Vitals Enabled!");
 	}
-	 
+	protected boolean LoadPlayer(String player) {
+		mysqlCore mysql = new mysqlCore(log,"[Vitals]",HOST,DB,USER,PWD);
+		mysql.initialize();
+		try {
+				ResultSet r=mysql.sqlQuery("SELECT * FROM `vitals` WHERE playername='"+player+"'");
+				if(r==null || !r.next()){return false;}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		mysql.close();
+		return true;
+	}
+	protected boolean SavePlayer(String player,int HP, int Level, int XP) {
+		boolean ok = LoadPlayer(player);
+		mysqlCore mysql = new mysqlCore(log,"[Vitals]",HOST,DB,USER,PWD);
+		mysql.initialize();
+		if(ok)
+		{
+		try {
+				mysql.updateQuery("UPDATE `vitals` SET HP='"+HP+"', Level='"+Level+"', TotalXP='"+XP+"' WHERE playername='"+player+"'");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		}
+		else
+		{
+			try {
+				mysql.insertQuery("INSERT INTO `vitals` VALUES(null,'"+player+"','"+HP+"','"+Level+"','"+XP+"');");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		}
+		mysql.close();
+		return true;
+	}
+	
+	
 	public void onDisable(){ 
 		log.info("[Vitals]Disabling Vitals...");
 		log.info("[Vitals]Vitals Disabled!");
@@ -456,4 +602,52 @@ public class Vitals extends JavaPlugin {
 			return Integer.toString(count);
 	  }
 
+	  private void loadProcedure() { 
+			try{
+			FileInputStream in = new FileInputStream(Config);
+			prop.load(in);in.close();}catch(Exception e){e.printStackTrace();} 
+			HOST = prop.getProperty("HOST");
+			if(HOST==null)
+			{
+				log.log(Level.WARNING,"[Vitals]Config corrupted or node HOST not set properly!");
+				log.log(Level.WARNING,"[Vitals]plugin will disable itself!");
+				this.setEnabled(false);
+			}
+			USER = prop.getProperty("USER");
+			if(USER==null)
+			{
+				log.log(Level.WARNING,"[Vitals]Config corrupted or node USER not set properly!");
+				log.log(Level.WARNING,"[Vitals]plugin will disable itself!");
+				this.setEnabled(false);
+			}
+			PWD = prop.getProperty("PWD");
+			if(PWD==null)
+			{
+				log.log(Level.WARNING,"[Vitals]Config corrupted or node PWD not set properly!");
+				log.log(Level.WARNING,"[Vitals]plugin will disable itself!");
+				this.setEnabled(false);	
+			}
+			DB = prop.getProperty("DB");
+			if(DB==null)
+			{
+				log.log(Level.WARNING,"[Vitals]Config corrupted or node DB not set properly!");
+				log.log(Level.WARNING,"[Vitals]plugin will disable itself!");
+				this.setEnabled(false);
+			}
+		}
+	  
+	  @EventHandler(priority=EventPriority.NORMAL)
+	  void onPlayerJoin(PlayerJoinEvent event)
+	  {
+		  Player player=event.getPlayer();
+		  String playername=player.getName();
+		  SavePlayer(playername, player.getHealth(), player.getLevel(), player.getTotalExperience());
+	  }
+	  @EventHandler(priority=EventPriority.NORMAL)
+	  void onPlayerQuit(PlayerQuitEvent event)
+	  {
+		  Player player=event.getPlayer();
+		  String playername=player.getName();
+		  SavePlayer(playername, player.getHealth(), player.getLevel(), player.getTotalExperience());
+	  }
 }
