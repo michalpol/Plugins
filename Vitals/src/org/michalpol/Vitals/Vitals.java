@@ -26,6 +26,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.alta189.sqlLibrary.MySQL.mysqlCore;
 
 /**
+ * @name Vitals
  * @author Michalpol
  * @Version 0.1.0
  */
