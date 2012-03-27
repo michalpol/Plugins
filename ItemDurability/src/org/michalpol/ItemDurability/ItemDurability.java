@@ -98,10 +98,10 @@ public class ItemDurability extends JavaPlugin
 					int mdurBody=matBody.getMaxDurability();
 					int mdurLegs=matLegs.getMaxDurability();
 					int mdurFeet=matFeet.getMaxDurability();
-					durHead=mdurHead-durHead;
-					durBody=mdurBody-durBody;
-					durLegs=mdurLegs-durLegs;
-					durFeet=mdurFeet-durFeet;
+					if(mdurHead>0){durHead=mdurHead-durHead;}else{durHead=0;}
+					if(mdurBody>0){durBody=mdurBody-durBody;}else{durBody=0;}
+					if(mdurLegs>0){durLegs=mdurLegs-durLegs;}else{durLegs=0;}
+					if(mdurFeet>0){durFeet=mdurFeet-durFeet;}else{durFeet=0;}
 					int durtot=Math.max(durHead,0)+Math.max(durBody,0)+Math.max(durLegs,0)+Math.max(durFeet,0);
 					int mdurtot=Math.max(mdurHead,0)+Math.max(mdurBody,0)+Math.max(mdurLegs,0)+Math.max(mdurFeet,0);
 					int prcHead=0;

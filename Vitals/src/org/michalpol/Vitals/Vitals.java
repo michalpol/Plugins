@@ -28,7 +28,7 @@ import com.alta189.sqlLibrary.MySQL.mysqlCore;
 /**
  * @name Vitals
  * @author Michalpol
- * @Version 0.1.0
+ * @Version 0.1.5
  */
 public class Vitals extends JavaPlugin implements Listener{
 	public static int CONST_AUTOSAVE_SECONDS = 300;
@@ -87,6 +87,7 @@ public class Vitals extends JavaPlugin implements Listener{
 					"`id` INT( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY ," +
 					"`playername` VARCHAR( 255 ) NOT NULL , " +
 					"`HP` INT( 2 ) NOT NULL , " +
+					"`FP` INT( 2 ) NOT NULL , " +
 					"`Level` INT( 4 ) NOT NULL , " +
 					"`TotalXP` INT( 11 ) NOT NULL)"))
 			{
@@ -104,7 +105,7 @@ public class Vitals extends JavaPlugin implements Listener{
 		try {
 		    metrics = new Metrics();
 
-		    // Plot the total amount of protections
+		    // Plot the total amount of HP
 		    metrics.addCustomData(this, new Metrics.Plotter("Total Health") {
 		        @Override
 		        public int getValue() {
@@ -168,6 +169,27 @@ public class Vitals extends JavaPlugin implements Listener{
 		        }
 
 		    });
+		    metrics.addCustomData(this, new Metrics.Plotter("Total Hunger") {
+		        @Override
+		        public int getValue() {
+		        	int val = 0;
+		    		mysqlCore mysql = new mysqlCore(log,"[Vitals]",HOST,DB,USER,PWD);
+		    		mysql.initialize();
+		    		try {
+		    				ResultSet r=mysql.sqlQuery("SELECT SUM(FP) FROM `vitals`");
+		    				if(r==null || !r.next()){return 0;}
+		    				r.absolute(1);
+		    				val=r.getInt(1);
+		    		} catch (Exception e) {
+		    			e.printStackTrace();
+		    			return 0;
+		    		}
+		    		mysql.close();
+		    		
+		    		return val;
+		        }
+
+		    });
 		    metrics.beginMeasuringPlugin(this);
 		} catch (Exception e) {
 		    e.printStackTrace();
@@ -182,7 +204,7 @@ public class Vitals extends JavaPlugin implements Listener{
 						Player[] playersonline = Bukkit.getServer().getOnlinePlayers();
 						for(Player player : playersonline)
 						{
-							SavePlayer(player.getName(),player.getHealth(),player.getLevel(),player.getTotalExperience());
+							SavePlayer(player.getName(),player.getHealth(),player.getLevel(),player.getTotalExperience(),player.getFoodLevel());
 						}
 					}
 				}, 0, 20*CONST_AUTOSAVE_SECONDS);
@@ -201,14 +223,14 @@ public class Vitals extends JavaPlugin implements Listener{
 		mysql.close();
 		return true;
 	}
-	protected boolean SavePlayer(String player,int HP, int Level, int XP) {
+	protected boolean SavePlayer(String player,int HP, int Level, int XP, int FP) {
 		boolean ok = LoadPlayer(player);
 		mysqlCore mysql = new mysqlCore(log,"[Vitals]",HOST,DB,USER,PWD);
 		mysql.initialize();
 		if(ok)
 		{
 		try {
-				mysql.updateQuery("UPDATE `vitals` SET HP='"+HP+"', Level='"+Level+"', TotalXP='"+XP+"' WHERE playername='"+player+"'");
+				mysql.updateQuery("UPDATE `vitals` SET HP='"+HP+"',FP='"+FP+"', Level='"+Level+"', TotalXP='"+XP+"' WHERE playername='"+player+"'");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -217,7 +239,7 @@ public class Vitals extends JavaPlugin implements Listener{
 		else
 		{
 			try {
-				mysql.insertQuery("INSERT INTO `vitals` VALUES(null,'"+player+"','"+HP+"','"+Level+"','"+XP+"');");
+				mysql.insertQuery("INSERT INTO `vitals` VALUES(null,'"+player+"','"+HP+"','"+FP+"','"+Level+"','"+XP+"');");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -233,7 +255,6 @@ public class Vitals extends JavaPlugin implements Listener{
 		log.info("[Vitals]Vitals Disabled!");
 	}
 	
-	@SuppressWarnings("deprecation")
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
 		if(cmd.getName().equalsIgnoreCase("vitals"))
 		{
@@ -263,7 +284,7 @@ public class Vitals extends JavaPlugin implements Listener{
 				
 				i = 0;
 				String XPmess=colors.get("yellow");
-				while (i<Math.floor((player.getExperience()/5)))
+				while (i<Math.floor(((Math.floor(player.getExp()*100))/5)))
 				{XPmess+="|";i++;}
 				XPmess+=colors.get("black");
 				while (i<20)
@@ -353,7 +374,7 @@ public class Vitals extends JavaPlugin implements Listener{
 				player.sendMessage("Level:              " +colors.get("green")+ Integer.toString(player.getLevel()));
 				player.sendMessage("Health (HP):       " +HPmess);
 				player.sendMessage("Hunger (HG):      " +HGmess);
-				player.sendMessage("Experience (XP): " +XPmess+" "+colors.get("yellow")+Integer.toString((int)Math.floor((player.getExperience())))+"%");
+				player.sendMessage("Experience (XP): " +XPmess+" "+colors.get("yellow")+Integer.toString((int)Math.floor(((Math.floor(player.getExp()*100)))))+"%");
 				player.sendMessage("Armor:              " +ArmorMess);
 				player.sendMessage("Weapons:           " +WeaponsMess);
 				player.sendMessage("Food:                " +FoodMess);
@@ -403,7 +424,7 @@ public class Vitals extends JavaPlugin implements Listener{
 				
 				i = 0;
 				String XPmess=colors.get("yellow");
-				while (i<Math.floor((p.getExperience()/5)))
+				while (i<Math.floor(((Math.floor(player.getExp()*100))/5)))
 				{XPmess+="|";i++;}
 				XPmess+=colors.get("black");
 				while (i<20)
@@ -495,7 +516,7 @@ public class Vitals extends JavaPlugin implements Listener{
 				player.sendMessage("Level:              " +colors.get("green")+ Integer.toString(p.getLevel()));
 				player.sendMessage("Health (HP):       " +HPmess);
 				player.sendMessage("Hunger (HG):      " +HGmess);
-				player.sendMessage("Experience (XP): " +XPmess+" "+colors.get("yellow")+Integer.toString((int)Math.floor((p.getExperience())))+"%");
+				player.sendMessage("Experience (XP): " +XPmess+" "+colors.get("yellow")+Integer.toString((int)Math.floor(((Math.floor(player.getExp()*100)))))+"%");
 				player.sendMessage("Armor:              " +ArmorMess);
 				player.sendMessage("Weapons:           " +WeaponsMess);
 				player.sendMessage("Food:                " +FoodMess);
@@ -568,7 +589,6 @@ public class Vitals extends JavaPlugin implements Listener{
 	    if(a<10){str="000"+Integer.toString(a);}else if(a<100){str="00"+Integer.toString(a);}else if(a<1000){str="0"+Integer.toString(a);}else{str=Integer.toString(a);}
 	    return str;
 	  }
-	@SuppressWarnings("deprecation")
 	private String FormattedPlayerInfoBar(Player player,Player me)
 	  {
 		  //Name   LVL   HP   HG   XP   FS
@@ -578,7 +598,7 @@ public class Vitals extends JavaPlugin implements Listener{
 		  HGstr=colors.get("gold")+"HG: "+Integer.toString((player.getFoodLevel()*5))+"%";
 		  int HHTM=player.getLevel()-me.getLevel();
 		  if(Math.abs(HHTM)<=3){LVLstr=colors.get("yellow")+"LV: "+Integer.toString(player.getLevel());}else if(HHTM<-3){LVLstr=colors.get("green")+"LV: "+Integer.toString(player.getLevel());} else {LVLstr=colors.get("red")+"LV: "+Integer.toString(player.getLevel());}
-		  XPstr=colors.get("yellow")+"XP: "+Integer.toString(player.getExperience())+"%";
+		  XPstr=colors.get("yellow")+"XP: "+Integer.toString((int)(Math.floor(player.getExp()*100)))+"%";
 		  String FSstr=colors.get("green")+"FS: "+UnFormattedItemsSlotsString(player.getInventory());
 		  return Namestr+"   "+LVLstr+"   "+HPstr+"   "+HGstr+"   "+XPstr+"   "+FSstr;
 	  }
@@ -642,13 +662,13 @@ public class Vitals extends JavaPlugin implements Listener{
 	  {
 		  Player player=event.getPlayer();
 		  String playername=player.getName();
-		  SavePlayer(playername, player.getHealth(), player.getLevel(), player.getTotalExperience());
+		  SavePlayer(playername, player.getHealth(), player.getLevel(), player.getTotalExperience(),player.getFoodLevel());
 	  }
 	  @EventHandler(priority=EventPriority.NORMAL)
 	  void onPlayerQuit(PlayerQuitEvent event)
 	  {
 		  Player player=event.getPlayer();
 		  String playername=player.getName();
-		  SavePlayer(playername, player.getHealth(), player.getLevel(), player.getTotalExperience());
+		  SavePlayer(playername, player.getHealth(), player.getLevel(), player.getTotalExperience(),player.getFoodLevel());
 	  }
 }
