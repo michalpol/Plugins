@@ -17,12 +17,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+//***UNCOMMENT FOR HP CHANGE LOGGING*** //import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
-
 import com.alta189.sqlLibrary.MySQL.mysqlCore;
 
 /**
@@ -671,4 +671,16 @@ public class Vitals extends JavaPlugin implements Listener{
 		  String playername=player.getName();
 		  SavePlayer(playername, player.getHealth(), player.getLevel(), player.getTotalExperience(),player.getFoodLevel());
 	  }
+/*	OPTIONALLY ENABLE FOR HP CHANGE LOGGING 
+ * 	  @EventHandler(priority=EventPriority.NORMAL)
+ *	  void onPlayerHealthChange(EntityDamageEvent event)
+ *	  {
+ *		  if(event.getEntity() instanceof Player)
+ *		  {
+ *			  Player player=(Player)event.getEntity();
+ *			  String playername=player.getName();
+ *			  SavePlayer(playername, player.getHealth(), player.getLevel(), player.getTotalExperience(),player.getFoodLevel());
+ *		  }
+ *	  }
+ */
 }
