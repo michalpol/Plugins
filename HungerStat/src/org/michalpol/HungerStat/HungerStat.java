@@ -19,13 +19,13 @@ public class HungerStat extends JavaPlugin
 	public Logger log=Logger.getLogger("Minecraft");;
 	public void onEnable()
 	{
-		log.info("HungerStat v. 0.0.2 Enabled!");
+		log.info("HungerStat v. 0.0.3 Enabled!");
 	}
 	
 	
 	public void onDisable()
 	{
-		log.info("HungerStat v. 0.0.2 Disabled!");
+		log.info("HungerStat v. 0.0.3 Disabled!");
 	}
 	
 	/**
@@ -44,10 +44,19 @@ public class HungerStat extends JavaPlugin
 				int foodpercent=(int) Math.floor((totalfood/maxfood)*100);
 				totalfood=(int)(totalfood*((float)400.0));
 				totalfood=totalfood/(float)100.0;
+				int WSn=(int) Math.floor(totalfood/0.01);
+				int Sp=(int) Math.floor(totalfood/0.1);
+				int Sw=(int) Math.floor(totalfood/0.015);
+				int J=(int) Math.floor(totalfood/0.2);
+				int Js=(int) Math.floor(totalfood/0.8);
+				int BB=(int) Math.floor(totalfood/0.025);
+				int AD=(int) Math.floor(totalfood/0.03);
+				
 				player.sendMessage("Total FoodLevel: "+"§e"+Float.toString(totalfood)+"["+Integer.toString(foodpercent)+"%]§f");
 				player.sendMessage("Minecraft Level: "+Integer.toString(player.getLevel()));
 				player.sendMessage("Minecraft Experience: "+ Integer.toString(((int)((player.getExp())*100))) + "%");
 				player.sendMessage("Minecraft Total Experience: "+Integer.toString(player.getTotalExperience()));
+				player.sendMessage("W/S: "+Integer.toString(WSn)+"m Sp: "+Integer.toString(Sp)+"m Sw: "+Integer.toString(Sw)+"m J: "+Integer.toString(J)+"x Js: "+Integer.toString(Js)+"x BB: "+Integer.toString(BB)+"x A/D: "+Integer.toString(AD)+"x");
 				return true;
 		}
 		return false; 
