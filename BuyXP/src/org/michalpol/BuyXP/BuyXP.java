@@ -141,15 +141,20 @@ public class BuyXP extends JavaPlugin {
         		sender.sendMessage("§cYou may only specify values GREATER THAN 0!");
         		return true;	
         	}
+        	if(grantedlvls>player.getLevel())
+        	{
+        		sender.sendMessage("§cYou may only specify values LESS OR EQUAL TO YOUR LEVEL!");
+        		return true;	
+        	}
         	
-        	int lvl = 0;
+        	int lvl = player.getLevel()-1;
         	int xp = 7;
         	int totxp=0;
-        	while (lvl<grantedlvls) 
+        	while (lvl+1>(lvl-grantedlvls)) 
         	{
         	  xp= 7 + ((7*lvl)>>1);
         	  totxp+=xp;
-        	  lvl++;
+        	  lvl--;
         	}
         	totxp*=xpprice;
             sender.sendMessage(String.format("You have §6%s§f", econ.format(econ.getBalance(player.getName()))));
