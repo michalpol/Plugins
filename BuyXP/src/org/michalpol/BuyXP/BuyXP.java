@@ -1,5 +1,9 @@
 package org.michalpol.BuyXP;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.milkbowl.vault.economy.Economy;
@@ -18,7 +22,9 @@ public class BuyXP extends JavaPlugin {
 	    public static Economy econ = null;
 	    private static Vault vault = null;
 	    private static double xpprice= 5;
-	    
+		static String mainDirectory = "plugins/BuyXP"; 
+		static File Config = new File(mainDirectory + File.separator + "config.properties");
+		static Properties prop = new Properties();
 	public void onEnable()
 	{
 		Plugin x = this.getServer().getPluginManager().getPlugin("Vault");
@@ -37,9 +43,40 @@ public class BuyXP extends JavaPlugin {
             getServer().getPluginManager().disablePlugin(this);
             return;
 		}
+		log.info("BuyXP looks for config files...");
+		 new File(mainDirectory).mkdir();
+		 
+			if(!Config.exists()){ 
+				log.log(Level.WARNING,"BuyXP config not found!");
+				log.log(Level.WARNING,"BuyXP will disable itself!");
+				this.setEnabled(false);
+				}
+			else { 
+				loadProcedure();
+			}
 		log.log(Level.INFO, String.format("[%s] Enabled Version %s", getDescription().getName(), getDescription().getVersion()));
 	}
 	
+	private void loadProcedure() {
+		try{
+			FileInputStream in = new FileInputStream(Config);
+			prop.load(in);in.close();}catch(Exception e){e.printStackTrace();} 
+			xpprice = Integer.parseInt(prop.getProperty("XPprice"));
+			if(xpprice<=0)
+			{
+				log.log(Level.WARNING,"[BuyXP]XPprice not set properly, defaulting to 5.");
+				xpprice=5;
+				prop.setProperty("XPprice", Double.toString(xpprice));
+				try{
+					FileOutputStream out = new FileOutputStream(Config);
+					prop.store(out, "");
+					out.close();
+				}catch(Exception e){e.printStackTrace();}
+				log.log(Level.WARNING,"[BuyXP]Regenerating config file...");
+			}
+		
+	}
+
 	public void onDisable()
 	{
 		log.log(Level.INFO, String.format("[%s] Disabled Version %s", getDescription().getName(), getDescription().getVersion()));
@@ -87,7 +124,46 @@ public class BuyXP extends JavaPlugin {
                 sender.sendMessage(String.format("§cAn error occured: %s", r.errorMessage));
             }
             return true;
-        } else {
+        }else if(command.getLabel().equalsIgnoreCase("sellxp"))
+        {
+        	if(args.length == 0)
+        	{
+        		return false;	
+        	}
+        	double grantedlvls=Double.parseDouble(args[0]);
+        	if(Math.floor(grantedlvls)!=grantedlvls)
+        	{
+        		sender.sendMessage("§cYou may only specify integers in this command - NO FRACTIONS!");
+        		return true;	
+        	}
+        	if(grantedlvls<1)
+        	{
+        		sender.sendMessage("§cYou may only specify values GREATER THAN 0!");
+        		return true;	
+        	}
+        	
+        	int lvl = 0;
+        	int xp = 7;
+        	int totxp=0;
+        	while (lvl<grantedlvls) 
+        	{
+        	  xp= 7 + ((7*lvl)>>1);
+        	  totxp+=xp;
+        	  lvl++;
+        	}
+        	totxp*=xpprice;
+            sender.sendMessage(String.format("You have §6%s§f", econ.format(econ.getBalance(player.getName()))));
+            EconomyResponse r = econ.depositPlayer(player.getName(), totxp);
+            if(r.transactionSuccess()) {
+                sender.sendMessage(String.format("You were credited §6%s§f for §6%s§f XP levels (worth §6%s XP§f) and now have §6%s§f", econ.format(r.amount),String.valueOf(grantedlvls),String.valueOf(totxp/xpprice) ,econ.format(r.balance)));
+                player.setLevel((int)Math.floor(player.getLevel()-grantedlvls));
+            }else {
+                sender.sendMessage(String.format("§cAn error occured: %s", r.errorMessage));
+            }
+            return true;
+        	
+        }
+        else {
             return false;
         }
     }

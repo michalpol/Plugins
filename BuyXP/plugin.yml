@@ -1,10 +1,14 @@
 name: BuyXP
 author: michalpol
 main: org.michalpol.BuyXP.BuyXP
-version: 0.0.4
+version: 0.0.5
 depend: [Vault]
 commands:
    buyxp:
       description: Buys [amount] of experience points.
       usage: |
             /buyxp [amount]
+   sellxp:
+      description: Sells [amount] of experience levels.
+      usage: |
+            /sellxp [amount]
