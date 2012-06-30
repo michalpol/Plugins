@@ -118,7 +118,7 @@ public class BuyXP extends JavaPlugin {
             sender.sendMessage(String.format("You have §6%s§f", econ.format(econ.getBalance(player.getName()))));
             EconomyResponse r = econ.withdrawPlayer(player.getName(), wantedxp*xpprice);
             if(r.transactionSuccess()) {
-                sender.sendMessage(String.format("You were charged §6%s§f for §6%s XP§f and now have §6%s§f", econ.format(r.amount),String.valueOf(wantedxp) ,econ.format(r.balance)));
+                sender.sendMessage(String.format("You were charged §6%s§f for §6%s XP§f and now have §6%s§f", econ.format(r.amount),String.valueOf((int)wantedxp) ,econ.format(r.balance)));
                 player.giveExp((int)Math.floor(wantedxp));
             }else {
                 sender.sendMessage(String.format("§cAn error occured: %s", r.errorMessage));
@@ -147,21 +147,23 @@ public class BuyXP extends JavaPlugin {
         		return true;	
         	}
         	
-        	int lvl = player.getLevel()-1;
-        	int xp = 7;
+        	int lvl = player.getLevel();
+        	int tolvl=(int)(lvl-grantedlvls);
+        	int xp = 0;
         	int totxp=0;
-        	while (lvl+1>(lvl-grantedlvls)) 
+        	
+        	while (lvl>tolvl) 
         	{
-        	  xp= 7 + ((7*lvl)>>1);
+        	  xp= 7 + ((7*(lvl-1))>>1);
         	  totxp+=xp;
         	  lvl--;
         	}
-        	totxp*=xpprice;
+        	
             sender.sendMessage(String.format("You have §6%s§f", econ.format(econ.getBalance(player.getName()))));
-            EconomyResponse r = econ.depositPlayer(player.getName(), totxp);
+            EconomyResponse r = econ.depositPlayer(player.getName(), totxp*xpprice);
             if(r.transactionSuccess()) {
-                sender.sendMessage(String.format("You were credited §6%s§f for §6%s§f XP levels (worth §6%s XP§f) and now have §6%s§f", econ.format(r.amount),String.valueOf(grantedlvls),String.valueOf(totxp/xpprice) ,econ.format(r.balance)));
-                player.setLevel((int)Math.floor(player.getLevel()-grantedlvls));
+                sender.sendMessage(String.format("You were credited §6%s§f for §6%s§f XP levels (worth §6%s XP§f) and now have §6%s§f", econ.format(r.amount),String.valueOf((int)grantedlvls),String.valueOf(totxp) ,econ.format(r.balance)));
+                player.setLevel(tolvl);
             }else {
                 sender.sendMessage(String.format("§cAn error occured: %s", r.errorMessage));
             }
