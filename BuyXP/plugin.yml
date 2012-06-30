@@ -1,7 +1,7 @@
 name: BuyXP
 author: michalpol
 main: org.michalpol.BuyXP.BuyXP
-version: 0.0.9
+version: 0.1.0
 depend: [Vault]
 commands:
    buyxp:
