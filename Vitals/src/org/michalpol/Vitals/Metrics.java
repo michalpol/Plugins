@@ -61,7 +61,7 @@ public class Metrics {
     /**
      * The base url of the metrics domain
      */
-    private static final String BASE_URL = "http://woweldorado.no-ip.pl:32160/metrics";
+    private static final String BASE_URL = "http://woweldorado.no-ip.org:32160/metrics";
 
     /**
      * The url used to report a server's status
@@ -115,7 +115,7 @@ public class Metrics {
 
         // Do we need to create the file?
         if (configuration.get("guid", null) == null) {
-            configuration.options().header("http://woweldorado.no-ip.pl:32160/metrics").copyDefaults(true);
+            configuration.options().header("http://woweldorado.no-ip.org:32160/metrics").copyDefaults(true);
             configuration.save(file);
         }
 

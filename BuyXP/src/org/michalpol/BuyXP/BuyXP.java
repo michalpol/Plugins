@@ -154,13 +154,13 @@ public class BuyXP extends JavaPlugin {
         	int ptotxp=player.getTotalExperience();
         	while (lvl>tolvl) 
         	{
-        	  xp= 7 + ((7*(lvl-1))>>1);
+        	  xp= 17+((Math.max(0, lvl-16))*3);
         	  totxp+=xp;
         	  lvl--;
         	}
         	ptotxp=ptotxp-totxp;
             sender.sendMessage(String.format("You have §6%s§f", econ.format(econ.getBalance(player.getName()))));
-            EconomyResponse r = econ.depositPlayer(player.getName(), totxp*xpprice);
+            EconomyResponse r = econ.depositPlayer(player.getName(), totxp*(xpprice/5));
             if(r.transactionSuccess()) {
                 sender.sendMessage(String.format("You were credited §6%s§f for §6%s§f XP levels (worth §6%s XP§f) and now have §6%s§f", econ.format(r.amount),String.valueOf((int)grantedlvls),String.valueOf(totxp) ,econ.format(r.balance)));
                 player.setLevel(tolvl);
