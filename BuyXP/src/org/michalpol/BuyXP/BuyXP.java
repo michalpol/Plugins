@@ -22,6 +22,7 @@ public class BuyXP extends JavaPlugin {
 	    public static Economy econ = null;
 	    private static Vault vault = null;
 	    private static double xpprice= 5;
+	    private static double xpprice2= 0.02;
 		static String mainDirectory = "plugins/BuyXP"; 
 		static File Config = new File(mainDirectory + File.separator + "config.properties");
 		static Properties prop = new Properties();
@@ -61,12 +62,14 @@ public class BuyXP extends JavaPlugin {
 		try{
 			FileInputStream in = new FileInputStream(Config);
 			prop.load(in);in.close();}catch(Exception e){e.printStackTrace();} 
-			xpprice = Integer.parseInt(prop.getProperty("XPprice"));
-			if(xpprice<=0)
+			xpprice =Double.parseDouble(prop.getProperty("XPprice"));
+			xpprice2 = Double.parseDouble(prop.getProperty("XPpriceSell"));
+			if(xpprice<=0||xpprice2<=0)
 			{
 				log.log(Level.WARNING,"[BuyXP]XPprice not set properly, defaulting to 5.");
 				xpprice=5;
 				prop.setProperty("XPprice", Double.toString(xpprice));
+				prop.setProperty("XPpriceSell", Double.toString(xpprice));
 				try{
 					FileOutputStream out = new FileOutputStream(Config);
 					prop.store(out, "");
@@ -160,7 +163,7 @@ public class BuyXP extends JavaPlugin {
         	}
         	ptotxp=ptotxp-totxp;
             sender.sendMessage(String.format("You have §6%s§f", econ.format(econ.getBalance(player.getName()))));
-            EconomyResponse r = econ.depositPlayer(player.getName(), totxp*(xpprice/5));
+            EconomyResponse r = econ.depositPlayer(player.getName(), totxp*(xpprice2));
             if(r.transactionSuccess()) {
                 sender.sendMessage(String.format("You were credited §6%s§f for §6%s§f XP levels (worth §6%s XP§f) and now have §6%s§f", econ.format(r.amount),String.valueOf((int)grantedlvls),String.valueOf(totxp) ,econ.format(r.balance)));
                 player.setLevel(tolvl);
